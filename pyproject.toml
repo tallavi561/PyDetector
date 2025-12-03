@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "pydetector"
+version = "0.1.0"
+description = "Simple Flask server with image Base64 handling"
+authors = ["Your Name <you@example.com>"]
+packages = [
+    { include = "pydetector", from = "src" }
+]
+[tool.poetry.dependencies]
+python = "^3.10"
+flask = "^3.0.0"
+pillow = "^11.0.0"
+numpy = "^2.1.0"
+onnxruntime = "^1.23.2"
+ultralytics = "^8.3.228"
+huggingface-hub = "^1.1.4"
+onnx = "^1.19.1"
+
+[tool.poetry.scripts]
+start = "pydetector.index:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
