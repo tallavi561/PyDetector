@@ -5,12 +5,6 @@ from PIL import Image
 
 from pydetector.bl.detect import YoloObjectDetector, detector
 from pydetector.bl.message_handler import process_base64_detection
-from pydetector.utils.image_utils import (
-    save_base64_to_image,
-    save_image_object,
-    image_to_base64,
-    crop_image_to_output
-)
 
 
 def register_routes(app):
@@ -26,7 +20,7 @@ def register_routes(app):
 
             result = process_base64_detection(
                 data["image"],
-                save_crops=False
+                save_crops=True
             )
 
             return jsonify({

@@ -10,7 +10,7 @@ from pydetector.utils.image_utils import (
 )
 
 
-def process_base64_detection(b64_img: str, save_crops: bool = False):
+def process_base64_detection(b64_img: str, save_crops: bool):
     """
     Handles detection pipeline:
     1. Decode base64 and save image
@@ -24,28 +24,27 @@ def process_base64_detection(b64_img: str, save_crops: bool = False):
     print(f"[INFO] Saved input image: {input_path}, filename: {filename}")
 
     # 2. Run detection
-    detection_result = detector.detect(input_path)
+    detection_result = detector.detect(input_path, conf_threshold=0.06, save_outputs=save_crops)
     boxes = detection_result.get("objects", [])
     print(f"[INFO] Detected {len(boxes)} objects")
 
-    cropped_paths = []
-    if save_crops:
-        for idx, obj in enumerate(boxes, start=1):
-            x1, y1, x2, y2 = obj["x1"], obj["y1"], obj["x2"], obj["y2"]
+    # cropped_paths = []
+    # if save_crops:
+    #     for idx, obj in enumerate(boxes, start=1):
+    #         x1, y1, x2, y2 = obj["x1"], obj["y1"], obj["x2"], obj["y2"]
 
-            output_filename = (
-                f"{filename}_{idx}_conf{int(obj['confidence']*100)}%.jpg"
-            )
+    #         # output_filename = (
+    #         #     f"{filename}_{idx}_conf{int(obj['confidence']*100)}%.jpg"
+    #         # )
 
-            crop_path = crop_image_to_output(
-                input_path, output_filename, x1, y1, x2, y2
-            )
+    #         # crop_path = crop_image_to_output(
+    #         #     input_path, output_filename, x1, y1, x2, y2
+    #         # )
 
-            cropped_paths.append(crop_path)
-            print(f"[INFO] Saved crop: {crop_path}")
+    #         # cropped_paths.append(crop_path)
+    #         # print(f"[INFO] Saved crop: {crop_path}")
 
     return {
         "filename": filename,
         "detections": boxes,
-        "crops": cropped_paths
     }

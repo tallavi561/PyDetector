@@ -9,6 +9,8 @@ import onnx
 import os
 import numpy as np
 from PIL import Image
+
+from pydetector.utils.image_utils import crop_image_to_output
 # import mediapipe as mp
 
 model_version = "12"
@@ -41,7 +43,7 @@ class YoloObjectDetector:
         print("[INFO] ONNX model loaded successfully.\n")
         print(f"[INFO] Loaded YOLO model from: {model_path}")
 
-    def detect(self, image_path: str, conf_threshold: float = 0.06):
+    def detect(self, image_path: str, conf_threshold: float = 0.01, save_outputs: bool = False) -> dict:
 
         if not os.path.exists(image_path):
             raise FileNotFoundError(f"Image not found at: {image_path}")
@@ -55,12 +57,20 @@ class YoloObjectDetector:
         results = self.model(image_path, conf=conf_threshold, verbose=False)[0]
 
         detections = []
+        index = 0
         for box in results.boxes:
+            index += 1
             x1, y1, x2, y2 = box.xyxy[0].tolist()
             conf = float(box.conf[0])
             cls_id = int(box.cls[0])
             cls_name = self.model.names[cls_id]
 
+            if save_outputs:
+                crop_image_to_output(
+                    image_path,
+                    f"crop_outputs/crop_{index}_inputname+{image_path[15:19]}_cls_name+{cls_name}_conf+{int(conf*100)}.jpg",
+                    int(x1), int(y1), int(x2), int(y2)
+                )
             detections.append({
                 "X1": int(x1),
                 "Y1": int(y1),
@@ -68,7 +78,7 @@ class YoloObjectDetector:
                 "Y2": int(y2),
                 "confidence": conf,
                 # "class_id": cls_id,
-                # "class_name": cls_name
+                "class_name": cls_name
             })
             print(f" • Detected {cls_name} (ID: {cls_id} | Conf: {conf:.4f})")
 
