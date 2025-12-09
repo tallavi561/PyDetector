@@ -3,7 +3,7 @@ import uuid
 import base64
 import io
 from PIL import Image, ImageDraw, ImageFont
-
+import cv2
 
 INPUT_DIR = "input_pictures"
 OUTPUT_DIR = "output_pictures"
@@ -92,3 +92,42 @@ def crop_image_to_output(image_path: str, output_path: str ,  x1: int, y1: int, 
     cropped.save(out_path)
 
     return out_path
+
+def image_preprocess_clahe(input_path: str, filename: str) -> tuple[str, Image.Image]:
+    """
+    Applies CLAHE (Contrast Limited Adaptive Histogram Equalization)
+    to the image at input_path and saves a processed copy.
+    
+    Returns:
+      processed_path (str): path to the enhanced image.
+      pil_image (PIL.Image): PIL image object of the enhanced image.
+    """
+
+    # Load image
+    img = cv2.imread(input_path)
+
+    if img is None:
+        raise ValueError(f"[ERROR] Failed to read saved image: {input_path}")
+
+    # Convert to LAB color space
+    lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
+    l_channel, a, b = cv2.split(lab)
+
+    # Apply CLAHE on only the L-channel
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+    cl = clahe.apply(l_channel)
+
+    # Merge back and convert to BGR
+    lab_clahe = cv2.merge((cl, a, b))
+    img_clahe = cv2.cvtColor(lab_clahe, cv2.COLOR_LAB2BGR)
+
+    # Save processed image
+    processed_path = os.path.join("input_pictures", f"processed_{filename}")
+    cv2.imwrite(processed_path, img_clahe)
+
+    print(f"[INFO] Saved CLAHE processed image: {processed_path}")
+
+    # Convert to PIL for possible further use
+    pil_img = Image.fromarray(cv2.cvtColor(img_clahe, cv2.COLOR_BGR2RGB))
+
+    return processed_path, pil_img
