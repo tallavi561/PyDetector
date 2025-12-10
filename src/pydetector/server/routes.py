@@ -3,7 +3,6 @@ import io
 from flask import request, jsonify
 from PIL import Image
 
-from pydetector.bl.detect import YoloObjectDetector, detector
 from pydetector.bl.message_handler import process_base64_detection
 
 

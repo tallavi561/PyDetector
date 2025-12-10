@@ -3,6 +3,10 @@ import uuid
 import base64
 import io
 from PIL import Image, ImageDraw, ImageFont
+import cv2
+import os
+import cv2
+import numpy as np
 
 
 INPUT_DIR = "input_pictures"
@@ -91,4 +95,54 @@ def crop_image_to_output(image_path: str, output_path: str ,  x1: int, y1: int, 
     out_path = os.path.join(OUTPUT_DIR, filename)
     cropped.save(out_path)
 
+    return out_path
+
+def preprocess_sticker_image(input_path: str) -> str:
+    """
+    Preprocess JPG images gently, without introducing noise.
+    Uses the Green channel (best SNR), mild contrast boost, mild sharpening.
+    """
+
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Image not found: {input_path}")
+
+    # Read as BGR (OpenCV default)
+    img = cv2.imread(input_path)
+    if img is None:
+        raise ValueError("Failed to load image.")
+
+    # ---------------------------------------
+    # 1) Extract green channel (best signal)
+    # ---------------------------------------
+    green = img[:, :, 1]  # channel G
+
+    # ---------------------------------------
+    # 2) Gentle CLAHE (reduced clipLimit)
+    # ---------------------------------------
+    clahe = cv2.createCLAHE(clipLimit=1.8, tileGridSize=(8, 8))
+    enhanced = clahe.apply(green)
+
+    # ---------------------------------------
+    # 3) Mild unsharp mask (no noise boost)
+    # ---------------------------------------
+    blurred = cv2.GaussianBlur(enhanced, (7, 7), 1.5)
+    sharpened = cv2.addWeighted(enhanced, 1.3, blurred, -0.3, 0)
+
+    # ---------------------------------------
+    # 4) Final normalization
+    # ---------------------------------------
+    final = cv2.normalize(sharpened, None, 0, 255, cv2.NORM_MINMAX)
+
+    # ---------------------------------------
+    # 5) Save
+    # ---------------------------------------
+    os.makedirs("preprocessed", exist_ok=True)
+
+    base = os.path.basename(input_path)
+    name, _ = os.path.splitext(base)
+    out_path = f"preprocessed/{name}_prep.jpg"
+
+    cv2.imwrite(out_path, final)
+
+    print(f"[INFO] Preprocessed image saved to {out_path}")
     return out_path
