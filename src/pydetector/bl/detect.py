@@ -5,40 +5,39 @@ import os
 class OpenCVDetector:
     """
     מחלקה לזיהוי Bounding Boxes של מדבקות לבנות בתמונה באמצעות OpenCV.
-    כולל יכולות Debug משופרות.
+    זוהי הגרסה הסופית המשלבת: THRESH_BINARY_INV, MORPH_CLOSE, וסינון Aspect Ratio.
     """
 
     def __init__(self):
         print("[INFO] OpenCV clean detector initialized with DEBUG capabilities.")
 
     def _print_debug_stats(self, step_name: str, image: np.ndarray):
-        """הדפסת נתונים סטטיסטיים בסיסיים על התמונה לאחר שלב עיבוד."""
         if image is None or image.size == 0:
-            print(f"  [DEBUG] {step_name}: Image is None or empty.")
+            print(f"  [DEBUG] {step_name}: Image is None or empty.")
             return
         
-        # אם התמונה היא בגווני אפור, חשב ממוצע וסטיית תקן
         if len(image.shape) == 2 or image.shape[2] == 1:
             mean_val = np.mean(image)
             std_dev = np.std(image)
-            print(f"  [DEBUG] {step_name}: Mean Brightness={mean_val:.2f}, Std Dev={std_dev:.2f}, Max Val={np.max(image)}")
-        # אם התמונה צבעונית, הדפס רק את המידות
+            print(f"  [DEBUG] {step_name}: Mean Brightness={mean_val:.2f}, Std Dev={std_dev:.2f}, Max Val={np.max(image)}")
         else:
-             print(f"  [DEBUG] {step_name}: Shape={image.shape}")
+             print(f"  [DEBUG] {step_name}: Shape={image.shape}")
 
 
     def detect(self, 
                image_path: str,
                save_outputs: bool = False,
-               min_contour_area: int = 10000, 
-               max_contour_area: int = 400000,
-               adaptive_thresh_block_size: int = 11,
-               adaptive_thresh_C: int = 2
-            ) -> dict:
+               # עדכון פרמטרים לברירת מחדל אופטימלית
+               min_contour_area: int = 5000,   # מרוכך ללכידת מדבקות שבורות
+               max_contour_area: int = 700000, # מוגדל ללכידת קונטורים גדולים
+               adaptive_thresh_block_size: int = 15, 
+               adaptive_thresh_C: int = 10         
+             ) -> dict:
         
         print(f"\n[START] Processing image: {image_path}")
         print(f"[DEBUG] parameters: min_contour_area={min_contour_area}, max_contour_area={max_contour_area} ")
         print(f" // adaptive_thresh_block_size={adaptive_thresh_block_size}, adaptive_thresh_C={adaptive_thresh_C} ")
+        
         # 1. קריאת התמונה
         image = cv2.imread(image_path, cv2.IMREAD_COLOR)
         if image is None:
@@ -59,14 +58,17 @@ class OpenCVDetector:
                 gray, 
                 255, 
                 cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
-                cv2.THRESH_BINARY_INV,  # אנו מצפים למצוא מדבקות בהירות (לבן=255)
+                cv2.THRESH_BINARY_INV,  # THRESH_BINARY_INV: האובייקט מיוצג ע"י שחור במסכה
                 block_size,
                 adaptive_thresh_C
             )
-            # אם תצטרך לבדוק מקרה הפוך (THRESH_BINARY_INV), שנה כאן:
-            # thresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, block_size, adaptive_thresh_C)
             
             self._print_debug_stats("Adaptive Threshold", thresh)
+
+            # 3.6. פעולה מורפולוגית: Closing (סגירה) - לחיבור מדבקות שבורות
+            kernel = np.ones((7, 7), np.uint8) 
+            thresh = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
+            print("[DEBUG] Applied MORPH_CLOSE (7x7 kernel) operation to connect labels.")
 
         except Exception as e:
             print(f"[ERROR] Adaptive Thresholding failed: {e}")
@@ -79,50 +81,49 @@ class OpenCVDetector:
             cv2.CHAIN_APPROX_SIMPLE
         )
 
-        # --- הוסף את הקטע הזה מיד אחרי ששלב findContours הסתיים ---
+        # לוגיקת בדיקת הדיבאג (Area Breakdown)
         print(f"[DEBUG] Found {len(contours)} initial contours BEFORE filtering. Area breakdown:")
         large_contour_areas = []
 
         for i, contour in enumerate(contours):
             area = cv2.contourArea(contour)
-            if area > 1000: # הדפסת שטחים מעל 1000 פיקסלים (כדי לא להציף ברעש קטן)
+            if area > 1000: # הדפסת שטחים מעל 1000 פיקסלים
                 large_contour_areas.append(area)
 
         if large_contour_areas:
-            print(f"  [DEBUG] Large Contour Areas Found: {large_contour_areas}")
+            print(f"  [DEBUG] Large Contour Areas Found: {large_contour_areas}")
         else:
-            print("  [DEBUG] No contours found with area > 1000. Check Thresholding (Step 3).")
-        # -----------------------------------------------------------------
+            print("  [DEBUG] No contours found with area > 1000. Check Thresholding (Step 3).")
         
-        print(f"[DEBUG] Found {len(contours)} initial contours BEFORE filtering.")
         
         detections = []
         output_image = image.copy()
         
-        # 5. עיבוד וסינון הקונטורים
+        # 5. עיבוד וסינון הקונטורים (לולאה אחת ומדויקת)
         for i, contour in enumerate(contours):
             area = cv2.contourArea(contour)
             
-            # בדיקת סינון לפי גודל
+            # בדיקת סינון לפי גודל (עם max_area=700000)
             if min_contour_area < area < max_contour_area:
                 
                 # מציאת ה-Bounding Box המקיף
                 x, y, w, h = cv2.boundingRect(contour)
                 
-                # סינון משני: יחס גובה-רוחב (AspectRatio)
-                # אם המדבקות הן בדרך כלל מלבניות, נוכל להוסיף סינון זה:
-                # aspect_ratio = float(w) / h
-                # if 0.5 < aspect_ratio < 3.0: # טווח לדוגמה
+                # >>> סינון Aspect Ratio (יחס גובה-רוחב) <<<
+                aspect_ratio = float(w) / h
                 
-                detection = {
-                    "X1": int(x), "Y1": int(y), "X2": int(x + w), "Y2": int(y + h),
-                    "class_name": "label",
-                    "confidence": 1.0 
-                }
-                detections.append(detection)
-                
-                if save_outputs:
-                    cv2.rectangle(output_image, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                # טווח זה מסנן קווים ארוכים וצרים מאוד (רעש) 
+                if 0.2 < aspect_ratio < 5.0:
+                    
+                    detection = {
+                        "X1": int(x), "Y1": int(y), "X2": int(x + w), "Y2": int(y + h),
+                        "class_name": "label",
+                        "confidence": 1.0 
+                    }
+                    detections.append(detection)
+                    
+                    if save_outputs:
+                        cv2.rectangle(output_image, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
         print(f"[INFO] Detected {len(detections)} final objects AFTER filtering.")
 
@@ -138,4 +139,3 @@ class OpenCVDetector:
         }
 
 detector = OpenCVDetector()
-        

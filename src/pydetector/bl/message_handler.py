@@ -37,7 +37,7 @@ def process_base64_detection(b64_img: str, save_crops: bool):
         adaptive_thresh_C=10  # C יותר מתון
     )
     boxes = detection_result.get("detections", [])
-    print(f"<<<detection_result: {detection_result} >>>")
+    # print(f"<<<detection_result: {detection_result} >>>")
     print(f"[INFO] Detected {len(boxes)} detections")
 
     # cropped_paths = []
