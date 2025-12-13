@@ -40,6 +40,21 @@ class YoloObjectDetector:
         else:
             print("[INFO] PT model detected — skipping ONNX metadata.\n")
 
+    """
+    return : dict
+    {
+        "objects": [
+            {
+                "X1": int,
+                "Y1": int,
+                "X2": int,
+                "Y2": int,
+                "confidence": float,
+                "class_name": str
+            },
+            ...]
+    }
+    """
     def detect(self, image_path: str, conf_threshold: float = 0.01, save_outputs: bool = False) -> dict:
         if not os.path.exists(image_path):
             raise FileNotFoundError(f"Image not found at: {image_path}")

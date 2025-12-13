@@ -32,6 +32,9 @@ def process_base64_detection(b64_img: str, save_crops: bool):
 
     # 2. Run detection
     detection_result = detector.detect(input_path, conf_threshold=0.002, save_outputs=save_crops)
+    
+    
+    
     boxes = detection_result.get("objects", [])
     print(f"[INFO] Detected {len(boxes)} objects")
 
