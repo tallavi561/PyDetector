@@ -1,0 +1,442 @@
+<?xml version="1.0"?>
+<camera name="BX1" company="SICK AG, AutoIdent" device="ICR890-4 CORE 12k" version="V2.13.0.17225" identifier=" ">
+	<schema major="2" minor="8" patch="0"/>
+	<image objectid="122">
+		<trayindex>122</trayindex>
+		<imageinfo type="JPEG">
+			<quality>80</quality>
+			<resolution>270</resolution>
+			<size width="4944" length="3121"/>
+			<origin x="3826" y="0"/>
+			<increment start="55272" stop="55559"/>
+			<captureline start="49905" stop="53025"/>
+			<fvec>0x00000000</fvec>
+			<fvectxt></fvectxt>
+			<filename>20251211_Image102832_Bitunia_1_0000000122_0122.jpg</filename>
+			<filesize>1063570</filesize>
+		</imageinfo>
+		<decoder version="8.1.0">
+			<config>
+				<Params1D>51 1 2 255 0 0 1 0 10 0 1 2147483647 2147483647 2147483647 2147483647 2147483647 0 0 0 0 500 0 120 0 0 1 0 1 0 2 1 1 0 1 0 1 0 255 0 3 100 4 0 0 0 0 0 0 1 1 90</Params1D>
+				<CodeConf_0>1 0 3 0 0 0 0 0 0 0 0 0 0 1 8 50 0 0 0 0 1 0</CodeConf_0>
+				<CodeConf_1>1 0 3 0 0 0 0 0 0 0 0 0 0 1 8 50 0 0 0 0 1 4103</CodeConf_1>
+				<CodeConf_5>1 0 3 0 0 0 0 0 0 0 0 0 0 1 8 50 0 0 0 0 1 0</CodeConf_5>
+				<Params2D>68 1 0 255 0 0 0 0 10 0 1 2147483647 2147483647 2147483647 2147483647 2147483647 0 0 0 0 500 0 120 0 0 1 0 0 0 0 0 0 0 1 0 0 0 255 1 11 100 4 0 0 0 0 0 0 1 1 90</Params2D>
+				<DiagConfig>0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</DiagConfig>
+				<GlobalConfig>4 0 0 0 0 0 -1 1</GlobalConfig>
+				</config>
+			<info finish="true">
+				<decoderCtrlTimeImage unit="ms" value="111"/>
+				<decoderTimeImage unit="ms" value="78"/>
+				<decoderDelayStart unit="ms" value="0"/>
+				<decoderDelayEnd unit="ms" value="2"/>
+				<blocks total="44" decoded="44"/>
+				<decodedLine start="49056" stop="53279"/>
+			</info>
+		</decoder>
+		<symbol type="C128" pos="4519 1592 4517 1519 5026 1514 5028 1587" groupid="0">
+			<position>
+				<coordinate x="4519" y="1592"/>
+				<coordinate x="4517" y="1519"/>
+				<coordinate x="5026" y="1514"/>
+				<coordinate x="5028" y="1587"/>
+			</position>
+			<result length="13" coding="Ascii">RU0131227187Z</result>
+			<symbolinfo>
+				<width unit="pix">0.00</width>
+				<height unit="pix">73.03</height>
+			</symbolinfo>
+			<status>2</status>
+			<angle>359</angle>
+			<decosrc>0</decosrc>
+			<qualifier>
+				<rq>100</rq>
+				<fvec>0x00000000</fvec>
+			</qualifier>
+			<verifier>
+				<sc grade="4.0" value="94"/>
+				<defects grade="4.0" value="0"/>
+				<v grade="2.0" value="41"/>
+				<modsize value="4" unit="mm"/>
+				<qz value="100" unit="%"/>
+				<ecmin grade="4.0" value="43"/>
+				<mod grade="4.0" value="46"/>
+				<osg grade="4.0"/>
+				<decode grade="4.0" value="100"/>
+				<rmin grade="4.0" value="0"/>
+			</verifier>
+			<moduleinfo>
+				<width unit="pix">3.51</width>
+				<height unit="pix">73.03</height>
+			</moduleinfo>
+		</symbol>
+		<box name="Roi1D" pos="4519 1592 4517 1519 5026 1514 5028 1587" color="0 255 0" groupid="0">
+			<position>
+				<coordinate x="4519" y="1592"/>
+				<coordinate x="4517" y="1519"/>
+				<coordinate x="5026" y="1514"/>
+				<coordinate x="5028" y="1587"/>
+			</position>
+		</box>
+		<box name="Box1D" pos="4453 1450 5092 1450 5092 1656 4453 1656" color="0 0 255" groupid="0">
+			<position>
+				<coordinate x="4453" y="1450"/>
+				<coordinate x="5092" y="1450"/>
+				<coordinate x="5092" y="1656"/>
+				<coordinate x="4453" y="1656"/>
+			</position>
+		</box>
+		<symbol type="C128" pos="7273 2021 7200 2005 7336 1281 7409 1297" groupid="1">
+			<position>
+				<coordinate x="7273" y="2021"/>
+				<coordinate x="7200" y="2005"/>
+				<coordinate x="7336" y="1281"/>
+				<coordinate x="7409" y="1297"/>
+			</position>
+			<result length="13" coding="Ascii">RU0131234497Z</result>
+			<symbolinfo>
+				<width unit="pix">0.00</width>
+				<height unit="pix">74.73</height>
+			</symbolinfo>
+			<status>2</status>
+			<angle>281</angle>
+			<decosrc>0</decosrc>
+			<qualifier>
+				<rq>100</rq>
+				<fvec>0x00000000</fvec>
+			</qualifier>
+			<verifier>
+				<sc grade="4.0" value="92"/>
+				<defects grade="4.0" value="6"/>
+				<v grade="3.0" value="58"/>
+				<modsize value="5" unit="mm"/>
+				<qz value="100" unit="%"/>
+				<ecmin grade="4.0" value="64"/>
+				<mod grade="4.0" value="69"/>
+				<osg grade="4.0"/>
+				<decode grade="4.0" value="100"/>
+				<rmin grade="4.0" value="0"/>
+			</verifier>
+			<moduleinfo>
+				<width unit="pix">5.08</width>
+				<height unit="pix">74.73</height>
+			</moduleinfo>
+		</symbol>
+		<box name="Roi1D" pos="7273 2021 7200 2005 7336 1281 7409 1297" color="0 255 0" groupid="1">
+			<position>
+				<coordinate x="7273" y="2021"/>
+				<coordinate x="7200" y="2005"/>
+				<coordinate x="7336" y="1281"/>
+				<coordinate x="7409" y="1297"/>
+			</position>
+		</box>
+		<box name="Box1D" pos="7136 1217 7473 1217 7473 2085 7136 2085" color="0 0 255" groupid="1">
+			<position>
+				<coordinate x="7136" y="1217"/>
+				<coordinate x="7473" y="1217"/>
+				<coordinate x="7473" y="2085"/>
+				<coordinate x="7136" y="2085"/>
+			</position>
+		</box>
+		<symbol type="C128" pos="5693 2092 5892 2067 5978 2738 5783 2762" groupid="2">
+			<position>
+				<coordinate x="5693" y="2092"/>
+				<coordinate x="5892" y="2067"/>
+				<coordinate x="5978" y="2738"/>
+				<coordinate x="5783" y="2762"/>
+			</position>
+			<result length="11" coding="Ascii">spA4TtNV8Hs</result>
+			<symbolinfo>
+				<width unit="pix">0.00</width>
+				<height unit="pix">198.52</height>
+			</symbolinfo>
+			<status>2</status>
+			<angle>83</angle>
+			<decosrc>0</decosrc>
+			<qualifier>
+				<rq>100</rq>
+				<fvec>0x00000000</fvec>
+			</qualifier>
+			<verifier>
+				<sc grade="4.0" value="88"/>
+				<defects grade="4.0" value="3"/>
+				<v grade="3.0" value="55"/>
+				<modsize value="4" unit="mm"/>
+				<qz value="100" unit="%"/>
+				<ecmin grade="4.0" value="56"/>
+				<mod grade="4.0" value="64"/>
+				<osg grade="4.0"/>
+				<decode grade="4.0" value="100"/>
+				<rmin grade="4.0" value="0"/>
+			</verifier>
+			<moduleinfo>
+				<width unit="pix">4.34</width>
+				<height unit="pix">198.52</height>
+			</moduleinfo>
+		</symbol>
+		<box name="Roi1D" pos="5693 2092 5892 2067 5978 2738 5783 2762" color="0 255 0" groupid="2">
+			<position>
+				<coordinate x="5693" y="2092"/>
+				<coordinate x="5892" y="2067"/>
+				<coordinate x="5978" y="2738"/>
+				<coordinate x="5783" y="2762"/>
+			</position>
+		</box>
+		<box name="Box1D" pos="5629 2003 6042 2003 6042 2826 5629 2826" color="0 0 255" groupid="2">
+			<position>
+				<coordinate x="5629" y="2003"/>
+				<coordinate x="6042" y="2003"/>
+				<coordinate x="6042" y="2826"/>
+				<coordinate x="5629" y="2826"/>
+			</position>
+		</box>
+		<box name="Parcel" pos="9133 3056 3727 3202 3571 -208 9304 -334" color="255 128 0" groupid="3">
+			<position>
+				<coordinate x="9133" y="3056"/>
+				<coordinate x="3727" y="3202"/>
+				<coordinate x="3571" y="-208"/>
+				<coordinate x="9304" y="-334"/>
+			</position>
+		</box>
+		<parcel pos="9133 3056 3727 3202 3571 -208 9304 -334" groupid="3">
+			<position>
+				<coordinate x="9133" y="3056"/>
+				<coordinate x="3727" y="3202"/>
+				<coordinate x="3571" y="-208"/>
+				<coordinate x="9304" y="-334"/>
+			</position>
+			<dimension unit="mm" height="88" width="321" length="510"/>
+			<volume unit="cm3" value="14394"/>
+			<angle>-88.5</angle>
+			<decosrc>4</decosrc>
+			<fvec>0x00000000</fvec>
+			<fvectxt></fvectxt>
+			<quality>0</quality>
+		</parcel>
+		<text name="Info" string="SICK" fontsize="30" pos="60 3020" color="8 148 206" layout="1">
+			<position x="60" y="3020"/>
+		</text>
+		<text name="Info" string="Device: ICR890" fontsize="30" pos="4484 50" color="255 0 0" layout="1">
+			<position x="4484" y="50"/>
+		</text>
+		<text name="Info" string="ObjectId: 122" fontsize="30" pos="4484 3020" color="255 0 0" layout="1">
+			<position x="4484" y="3020"/>
+		</text>
+		<line name="DirOfFlow" pos="164 40 268 664" color="255 0 0" layout="1">
+			<position>
+				<coordinate x="164" y="40"/>
+				<coordinate x="268" y="664"/>
+			</position>
+		</line>
+		<line name="DirOfFlow" pos="268 664 60 664" color="255 0 0" layout="1">
+			<position>
+				<coordinate x="268" y="664"/>
+				<coordinate x="60" y="664"/>
+			</position>
+		</line>
+		<line name="DirOfFlow" pos="60 664 164 40" color="255 0 0" layout="1">
+			<position>
+				<coordinate x="60" y="664"/>
+				<coordinate x="164" y="40"/>
+			</position>
+		</line>
+		<cross name="LWorkz" pos="2955 15" color="8 148 206">
+			<position x="2955" y="15"/>
+		</cross>
+		<cross name="RWorkz" pos="11459 15" color="8 148 206">
+			<position x="11459" y="15"/>
+		</cross>
+		<cross name="LWorkz" pos="2955 111" color="8 148 206">
+			<position x="2955" y="111"/>
+		</cross>
+		<cross name="RWorkz" pos="11459 111" color="8 148 206">
+			<position x="11459" y="111"/>
+		</cross>
+		<cross name="LWorkz" pos="2955 207" color="8 148 206">
+			<position x="2955" y="207"/>
+		</cross>
+		<cross name="RWorkz" pos="11459 207" color="8 148 206">
+			<position x="11459" y="207"/>
+		</cross>
+		<cross name="LWorkz" pos="2955 303" color="8 148 206">
+			<position x="2955" y="303"/>
+		</cross>
+		<cross name="RWorkz" pos="11459 303" color="8 148 206">
+			<position x="11459" y="303"/>
+		</cross>
+		<cross name="LWorkz" pos="2955 399" color="8 148 206">
+			<position x="2955" y="399"/>
+		</cross>
+		<cross name="RWorkz" pos="11459 399" color="8 148 206">
+			<position x="11459" y="399"/>
+		</cross>
+		<cross name="LWorkz" pos="2955 495" color="8 148 206">
+			<position x="2955" y="495"/>
+		</cross>
+		<cross name="RWorkz" pos="11459 495" color="8 148 206">
+			<position x="11459" y="495"/>
+		</cross>
+		<cross name="LWorkz" pos="2955 591" color="8 148 206">
+			<position x="2955" y="591"/>
+		</cross>
+		<cross name="RWorkz" pos="11459 591" color="8 148 206">
+			<position x="11459" y="591"/>
+		</cross>
+		<cross name="LWorkz" pos="2955 687" color="8 148 206">
+			<position x="2955" y="687"/>
+		</cross>
+		<cross name="RWorkz" pos="11459 687" color="8 148 206">
+			<position x="11459" y="687"/>
+		</cross>
+		<cross name="LWorkz" pos="2955 783" color="8 148 206">
+			<position x="2955" y="783"/>
+		</cross>
+		<cross name="RWorkz" pos="11459 783" color="8 148 206">
+			<position x="11459" y="783"/>
+		</cross>
+		<cross name="LWorkz" pos="2955 879" color="8 148 206">
+			<position x="2955" y="879"/>
+		</cross>
+		<cross name="RWorkz" pos="11459 879" color="8 148 206">
+			<position x="11459" y="879"/>
+		</cross>
+		<cross name="LWorkz" pos="2955 975" color="8 148 206">
+			<position x="2955" y="975"/>
+		</cross>
+		<cross name="RWorkz" pos="11459 975" color="8 148 206">
+			<position x="11459" y="975"/>
+		</cross>
+		<cross name="LWorkz" pos="2955 1071" color="8 148 206">
+			<position x="2955" y="1071"/>
+		</cross>
+		<cross name="RWorkz" pos="11459 1071" color="8 148 206">
+			<position x="11459" y="1071"/>
+		</cross>
+		<cross name="LWorkz" pos="2955 1167" color="8 148 206">
+			<position x="2955" y="1167"/>
+		</cross>
+		<cross name="RWorkz" pos="11459 1167" color="8 148 206">
+			<position x="11459" y="1167"/>
+		</cross>
+		<cross name="LWorkz" pos="2955 1263" color="8 148 206">
+			<position x="2955" y="1263"/>
+		</cross>
+		<cross name="RWorkz" pos="11459 1263" color="8 148 206">
+			<position x="11459" y="1263"/>
+		</cross>
+		<cross name="LWorkz" pos="2955 1359" color="8 148 206">
+			<position x="2955" y="1359"/>
+		</cross>
+		<cross name="RWorkz" pos="11459 1359" color="8 148 206">
+			<position x="11459" y="1359"/>
+		</cross>
+		<cross name="LWorkz" pos="2955 1455" color="8 148 206">
+			<position x="2955" y="1455"/>
+		</cross>
+		<cross name="RWorkz" pos="11459 1455" color="8 148 206">
+			<position x="11459" y="1455"/>
+		</cross>
+		<cross name="LWorkz" pos="2955 1551" color="8 148 206">
+			<position x="2955" y="1551"/>
+		</cross>
+		<cross name="RWorkz" pos="11459 1551" color="8 148 206">
+			<position x="11459" y="1551"/>
+		</cross>
+		<cross name="LWorkz" pos="2955 1647" color="8 148 206">
+			<position x="2955" y="1647"/>
+		</cross>
+		<cross name="RWorkz" pos="11459 1647" color="8 148 206">
+			<position x="11459" y="1647"/>
+		</cross>
+		<cross name="LWorkz" pos="2955 1743" color="8 148 206">
+			<position x="2955" y="1743"/>
+		</cross>
+		<cross name="RWorkz" pos="11459 1743" color="8 148 206">
+			<position x="11459" y="1743"/>
+		</cross>
+		<cross name="LWorkz" pos="2955 1839" color="8 148 206">
+			<position x="2955" y="1839"/>
+		</cross>
+		<cross name="RWorkz" pos="11459 1839" color="8 148 206">
+			<position x="11459" y="1839"/>
+		</cross>
+		<cross name="LWorkz" pos="2955 1935" color="8 148 206">
+			<position x="2955" y="1935"/>
+		</cross>
+		<cross name="RWorkz" pos="11459 1935" color="8 148 206">
+			<position x="11459" y="1935"/>
+		</cross>
+		<cross name="LWorkz" pos="2955 2031" color="8 148 206">
+			<position x="2955" y="2031"/>
+		</cross>
+		<cross name="RWorkz" pos="11459 2031" color="8 148 206">
+			<position x="11459" y="2031"/>
+		</cross>
+		<cross name="LWorkz" pos="2955 2127" color="8 148 206">
+			<position x="2955" y="2127"/>
+		</cross>
+		<cross name="RWorkz" pos="11459 2127" color="8 148 206">
+			<position x="11459" y="2127"/>
+		</cross>
+		<cross name="LWorkz" pos="2955 2223" color="8 148 206">
+			<position x="2955" y="2223"/>
+		</cross>
+		<cross name="RWorkz" pos="11459 2223" color="8 148 206">
+			<position x="11459" y="2223"/>
+		</cross>
+		<cross name="LWorkz" pos="2955 2319" color="8 148 206">
+			<position x="2955" y="2319"/>
+		</cross>
+		<cross name="RWorkz" pos="11459 2319" color="8 148 206">
+			<position x="11459" y="2319"/>
+		</cross>
+		<cross name="LWorkz" pos="2955 2415" color="8 148 206">
+			<position x="2955" y="2415"/>
+		</cross>
+		<cross name="RWorkz" pos="11459 2415" color="8 148 206">
+			<position x="11459" y="2415"/>
+		</cross>
+		<cross name="LWorkz" pos="2955 2511" color="8 148 206">
+			<position x="2955" y="2511"/>
+		</cross>
+		<cross name="RWorkz" pos="11459 2511" color="8 148 206">
+			<position x="11459" y="2511"/>
+		</cross>
+		<cross name="LWorkz" pos="2955 2607" color="8 148 206">
+			<position x="2955" y="2607"/>
+		</cross>
+		<cross name="RWorkz" pos="11459 2607" color="8 148 206">
+			<position x="11459" y="2607"/>
+		</cross>
+		<cross name="LWorkz" pos="2955 2703" color="8 148 206">
+			<position x="2955" y="2703"/>
+		</cross>
+		<cross name="RWorkz" pos="11459 2703" color="8 148 206">
+			<position x="11459" y="2703"/>
+		</cross>
+		<cross name="LWorkz" pos="2955 2799" color="8 148 206">
+			<position x="2955" y="2799"/>
+		</cross>
+		<cross name="RWorkz" pos="11459 2799" color="8 148 206">
+			<position x="11459" y="2799"/>
+		</cross>
+		<cross name="LWorkz" pos="2955 2895" color="8 148 206">
+			<position x="2955" y="2895"/>
+		</cross>
+		<cross name="RWorkz" pos="11459 2895" color="8 148 206">
+			<position x="11459" y="2895"/>
+		</cross>
+		<cross name="LWorkz" pos="2955 2991" color="8 148 206">
+			<position x="2955" y="2991"/>
+		</cross>
+		<cross name="RWorkz" pos="11459 2991" color="8 148 206">
+			<position x="11459" y="2991"/>
+		</cross>
+		<cross name="LWorkz" pos="2955 3087" color="8 148 206">
+			<position x="2955" y="3087"/>
+		</cross>
+		<cross name="RWorkz" pos="11459 3087" color="8 148 206">
+			<position x="11459" y="3087"/>
+		</cross>
+	</image>
+</camera>

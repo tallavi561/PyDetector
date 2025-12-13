@@ -4,6 +4,7 @@ import io
 from PIL import Image
 
 from pydetector.bl.detect import detector
+from pydetector.bl.script import print_image_info
 from pydetector.utils.image_utils import (
     image_preprocess_clahe,
     save_base64_to_image,
@@ -23,13 +24,14 @@ def process_base64_detection(b64_img: str, save_crops: bool):
 
     # 0. Save input image
     input_path, filename = save_base64_to_image(b64_img, "input_pictures")
+    # print_image_info(input_path)
     print(f"[INFO] Saved input image: {input_path}, filename: {filename}")
 
-    # 1. pre-process image (if needed)
-    processed_path, pil_img = image_preprocess_clahe(input_path, filename)
+    # # 1. pre-process image (if needed)
+    # processed_path, pil_img = image_preprocess_clahe(input_path, filename)
 
     # 2. Run detection
-    detection_result = detector.detect(processed_path, conf_threshold=0.06, save_outputs=save_crops)
+    detection_result = detector.detect(input_path, conf_threshold=0.002, save_outputs=save_crops)
     boxes = detection_result.get("objects", [])
     print(f"[INFO] Detected {len(boxes)} objects")
 

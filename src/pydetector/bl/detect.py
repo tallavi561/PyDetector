@@ -8,7 +8,7 @@ from PIL import Image
 from pydetector.utils.image_utils import crop_image_to_output
 
 model_version = "12"
-model_size = "x"
+model_size = "l"
 
 
 class YoloObjectDetector:
