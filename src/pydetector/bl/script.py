@@ -137,7 +137,7 @@ def extract_boxes_from_xml(xml_path: str) -> List[Tuple[int, int, int, int]]:
 
     return boxes
 
-Box = Tuple[float, float, float, float]
+Box = Tuple[int, int, int, int]
 def point_inside(px: float, py: float, box: Box) -> bool:
     """בדיקה האם נקודה נמצאת בתוך תיבה (כולל הקצוות)."""
     bx1, by1, bx2, by2 = box
@@ -262,7 +262,7 @@ def remove_small_boxes(
 
 def bright_pixel_ratio_in_box_from_path(
     image_path: str,
-    box: Tuple[int, int, int, int],
+    box: Box,
     brightness_threshold: int
 ) -> float:
     """
@@ -307,10 +307,94 @@ def bright_pixel_ratio_in_box_from_path(
     bright_pixels = roi > brightness_threshold
     return (bright_pixels.sum() / roi.size) * 100.0
 
+import os
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+import os
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+def save_brightness_bins(
+    image_path: str,
+    bin_size: int = 10
+) -> str:
+    """
+    Counts how many pixels fall into fixed brightness ranges:
+    0–9, 10–19, ..., 250–255
+    and saves a bar-chart visualization.
+
+    Returns:
+        Path to the saved image
+    """
+    if not os.path.exists(image_path):
+        raise FileNotFoundError(f"Image not found: {image_path}")
+
+    image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+    if image is None:
+        raise ValueError(f"Failed to load image: {image_path}")
+
+    pixels = image.flatten()
+
+    # --- Define bins ---
+    bins = list(range(0, 256 + bin_size, bin_size))
+    counts, edges = np.histogram(pixels, bins=bins)
+
+    # --- Prepare labels ---
+    labels = [
+        f"{edges[i]}–{edges[i+1]-1}"
+        for i in range(len(edges) - 1)
+    ]
+
+    # --- Plot ---
+    plt.figure(figsize=(14, 6))
+    plt.bar(labels, counts)
+    plt.xticks(rotation=90)
+    plt.xlabel("Brightness range")
+    plt.ylabel("Pixel count")
+    plt.title("Brightness Distribution (Bucketed)")
+    plt.tight_layout()
+
+    # --- Save ---
+    base, _ = os.path.splitext(image_path)
+    output_path = f"{base}_brightness_bins.png"
+    plt.savefig(output_path)
+    plt.close()
+
+    print(f"[INFO] Brightness bins saved to: {output_path}")
+
+    return output_path
+
+
+
+
+# Mapping from barcode index to list of box indices it is contained in
+BARCODE_TO_BOXES_INDEXES = dict[int, list[int]]
+BARCODE_TO_BOXES = dict[int, list[Box]]
+def box_containment(barcode_boxes: list[Box], detection_box: list[Box]) -> BARCODE_TO_BOXES_INDEXES:
+    """
+    Builds a mapping from each barcode box to the list of detection boxes that contain it.
+    """
+    barcode_to_box: BARCODE_TO_BOXES_INDEXES = dict()
+    for barcode_idx, barcode_box in enumerate(barcode_boxes):
+        containing_boxes = []
+        for d_idx, d_box in enumerate(detection_box):
+            score = box_containment_score_v2(d_box, barcode_box)
+            if score >= 50:
+                containing_boxes.append(d_idx)
+        barcode_to_box[barcode_idx] = containing_boxes
+    return barcode_to_box
+
 def mark_relevant_boxes_from_xml(
     xml_path: str,
     image_path: str,
-    output_path: str
+    output_path: str,
+    MIN_BOX_WIDTH: int = 400,
+    MIN_BOX_HEIGHT: int = 400
 ) -> str:
     """
     Extracts relevant bounding boxes from XML and draws them on the image.
@@ -323,57 +407,166 @@ def mark_relevant_boxes_from_xml(
     Returns:
         Path to the saved image
     """
+    p = save_brightness_bins(image_path, 10)
+    print(p)
+    FINAL_BOXES: List[Box] = []
+
     image = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
     print(f"image.shape: {image.shape}")
-    boxes = extract_boxes_from_xml(xml_path)
-    print(f"[INFO] Extracted {len(boxes)} relevant boxes from XML.")
-    if not boxes:
+    barcode_boxes = extract_boxes_from_xml(xml_path)
+    print(f"[INFO] Extracted {len(barcode_boxes)} relevant boxes from XML.")
+    if not barcode_boxes:
         raise ValueError("No relevant bounding boxes found in XML.")
 
     draw_boxes_and_save(
         image_path=image_path,
         output_path=output_path,
-        boxes=boxes
+        boxes=barcode_boxes
     )
 
     print(f"[INFO] Saved marked image with boxes to: {output_path}")
-    decetions: dict =  detector.detect(image_path, conf_threshold=0.002, save_outputs=False)
-    print(f"[INFO] Detector found {len(decetions.get('objects', []))} objects.")
+    decetions_dict: dict =  detector.detect(image_path, conf_threshold=0.002, save_outputs=False)
+    print(f"[INFO] Detector found {len(decetions_dict.get('objects', []))} objects.")
+    
+    detections_boxes: list[Box] = [(obj["X1"], obj["Y1"], obj["X2"], obj["Y2"]) for obj in decetions_dict.get("objects", [])]
+
     draw_boxes_and_save(
         image_path=image_path,
-        output_path=output_path.replace(".jpg", "_all_detected.jpg"),
-        boxes=[(obj["X1"], obj["Y1"], obj["X2"], obj["Y2"]) for obj in decetions.get("objects", [])]
+        output_path=output_path.replace(".jpg", "_all_detected1.jpg"),
+        boxes=detections_boxes
     )
-    filter_boxes = []
-    for obj in decetions.get("objects", []):
-      x1, y1, x2, y2 = (obj["X1"], obj["Y1"], obj["X2"], obj["Y2"])
-      for box in boxes:
-          if box_containment_score_v2((x1, y1, x2, y2), box) >= 50:
-            print(f"[DEBUG]: the width is {x2 - x1}, the height is {y2 - y1}")
-            filter_boxes.append((obj["X1"], obj["Y1"], obj["X2"], obj["Y2"]))
-    print(f"[INFO] After filtering, {len(filter_boxes)} boxes remain.")
+
+    barcode_to_containing_boxes_indexes: BARCODE_TO_BOXES_INDEXES = box_containment(barcode_boxes, detections_boxes)
+    barcode_to_containing_boxes : BARCODE_TO_BOXES = dict()
+    for barcode_idx, box_indexes in barcode_to_containing_boxes_indexes.items():
+        barcode_to_containing_boxes[barcode_idx] = [detections_boxes[i] for i in box_indexes]
     
-    without_small_boxes = remove_small_boxes(filter_boxes, min_width=400, min_height=400)
+    # if only one box contains a barcode, it definitely contains it
+    for barcode_idx, containing_boxes in barcode_to_containing_boxes.items():
+        if len(containing_boxes) == 1:
+            box = containing_boxes[0]
+            if box not in FINAL_BOXES:
+                FINAL_BOXES.append(box)
+
+
+    print(f"[INFO] {len(FINAL_BOXES)} detection boxes definitely contain unique barcode boxes.")
     draw_boxes_and_save(
-            image_path=image_path,
-            output_path=output_path.replace(".jpg", "_detected_no_small.jpg"),
-            boxes=without_small_boxes)
-    bright_boxes = []
-    for box in without_small_boxes:
-        print(f"[DEBUG] Remaining box after size filter: {box}")
-        percentage = bright_pixel_ratio_in_box_from_path(
-            image_path,
-            box,
-            brightness_threshold=190
-        )
-        print(f"[DEBUG] Bright pixel ratio in box {box}: {percentage:.2f}% in image {image_path} width-height: {abs(box[0] - box[2])} X {abs(box[1] - box[3])}")
-        if percentage > 0:
-            bright_boxes.append(box)
-    print(f"[INFO] After brightness filtering, {len(bright_boxes)} boxes remain.")
+        image_path=image_path,
+        output_path=output_path.replace(".jpg", "_definitely_exist_boxes2.jpg"),
+        boxes=FINAL_BOXES
+    )
+
+
+    for barcode_idx, containing_boxes in barcode_to_containing_boxes_indexes.items():
+        print(f"[DEBUG] Barcode box {barcode_idx} is contained in detection boxes: {containing_boxes}")
+        filtered_boxes = []
+        for box_idx in containing_boxes:
+            box = detections_boxes[box_idx]
+            x1, y1, x2, y2 = box
+            width = abs(x2 - x1)
+            height = abs(y2 - y1)
+            # NEED TO FIX IT! 
+            if width >= MIN_BOX_WIDTH or height >= MIN_BOX_HEIGHT:
+                filtered_boxes.append(box_idx)
+        # remove small boxes from containing_boxes, and ansure at least one box remains
+        if filtered_boxes:
+            barcode_to_containing_boxes_indexes[barcode_idx] = filtered_boxes 
+            # containing_boxes[:] = filtered_boxes
+
+    
+    # debug print after size filtering
+    without_small_boxes = []
+    for barcode_idx, containing_boxes in barcode_to_containing_boxes_indexes.items():
+        print(f"[DEBUG] After size filtering, Barcode box {barcode_idx} is contained in detection boxes: {containing_boxes}")
+        for box_idx in containing_boxes:
+            box = detections_boxes[box_idx]
+            if box not in without_small_boxes:
+                without_small_boxes.append(box)
 
     draw_boxes_and_save(
             image_path=image_path,
-            output_path=output_path.replace(".jpg", "_detected_bright_boxes.jpg"),
-            boxes=bright_boxes
+            output_path=output_path.replace(".jpg", "_detected_no_small3.jpg"),
+            boxes=without_small_boxes)
+    """
+    We assume that the box with the highest bright pixel ratio is the correct one for each barcode.
+    But we don't actuallt know the correct bright threshold, so we start with 200 and lower it until we find exact one box for each barcode.
+    """
+
+    for barcode_idx, containing_boxes in barcode_to_containing_boxes.items():
+        print(f"[DEBUG] Processing barcode {barcode_idx} with {containing_boxes} containing boxes.")   
+        BRIGHTNESS_THRESHOLD = 160
+        STEP_SIZE = 10
+        RATIO = 80.0
+        CONTINURE = True
+        if len(containing_boxes) == 1:
+            continue
+        containing_boxes.sort(key=lambda box: bright_pixel_ratio_in_box_from_path(
+            image_path=image_path, box=box, brightness_threshold=BRIGHTNESS_THRESHOLD),
+            reverse=True
+            )
+        # now we want to save each box s.t the ratio is in the name of the file
+        for box in containing_boxes:
+            ratio = bright_pixel_ratio_in_box_from_path(
+                image_path=image_path,
+                box=box,
+                brightness_threshold=BRIGHTNESS_THRESHOLD
+            )
+            print(f"[DEBUG] Box {box} has bright pixel ratio: {ratio:.2f}% at threshold {BRIGHTNESS_THRESHOLD}.")
+            draw_boxes_and_save(
+                image_path=image_path,
+                output_path=output_path.replace(".jpg", f"_barcode{barcode_idx}_box_{box[0]}_{box[1]}_{box[2]}_{box[3]}_ratio_{int(ratio)}.jpg"),
+                boxes=[box]
+            )
+        
+        barcode_to_containing_boxes[barcode_idx] = [containing_boxes[0]]
+    print(f"[INFO] Selected boxes after brightness evaluation.")
+    print(f"barcode_to_containing_boxes: {barcode_to_containing_boxes}")
+    for barcode_idx, containing_boxes in barcode_to_containing_boxes.items():
+        for box in containing_boxes:
+            if box not in FINAL_BOXES:
+                FINAL_BOXES.append(box)
+        # while CONTINURE:
+        #     if len(containing_boxes) == 1:
+        #         print(f"[INFO] Only one box contains barcode {barcode_idx}, selecting it.")
+        #         if containing_boxes[0] not in FINAL_BOXES:
+        #             FINAL_BOXES.append(containing_boxes[0])
+        #         CONTINURE = False
+        #         continue
+        #     print(f"[DEBUG] Evaluating bright pixel ratios for barcode {barcode_idx} with brightness threshold {BRIGHTNESS_THRESHOLD}.")
+        #     # here, the index indicates the box in containing_boxes
+        #     box_index_to_bright_ratio: dict[int, float] = dict()
+        #     for box_id, box in enumerate(containing_boxes):
+        #         ratio = bright_pixel_ratio_in_box_from_path(
+        #             image_path=image_path,
+        #             box=box,
+        #             brightness_threshold=BRIGHTNESS_THRESHOLD
+        #         )
+
+        #         box_index_to_bright_ratio[box_id] = ratio
+        #     print(f"[DEBUG] Bright pixel ratios for barcode {barcode_idx}: {box_index_to_bright_ratio}")
+        #     # find how many boxes are above the ratio
+        #     boxes_above_ratio: list[int] = [box_id for box_id, ratio in box_index_to_bright_ratio.items() if ratio >= RATIO]
+        #     if len(boxes_above_ratio) == 1:
+        #         print(f"[INFO] Found unique bright box for barcode {barcode_idx} with brightness threshold {BRIGHTNESS_THRESHOLD}.")
+        #         box = containing_boxes[boxes_above_ratio[0]]
+        #         if box not in FINAL_BOXES:
+        #             FINAL_BOXES.append(box)
+        #         CONTINURE = False
+        #     else:
+        #         print(f"[DEBUG] Could not find unique bright box for barcode {barcode_idx} with brightness threshold {BRIGHTNESS_THRESHOLD}. Boxes above ratio: {boxes_above_ratio}")
+        #         BRIGHTNESS_THRESHOLD -= STEP_SIZE
+        #         RATIO -= 5.0
+        #         if BRIGHTNESS_THRESHOLD < 50:
+        #             print(f"[WARNING] Reached minimum brightness threshold for barcode {barcode_idx} without finding unique bright box.")
+        #             # give up
+        #             CONTINURE = False
+        #             print(f"[WARNING] Could not determine unique bright box for barcode {barcode_idx}.")
+    
+
+
+    draw_boxes_and_save(
+            image_path=image_path,
+            output_path=output_path.replace(".jpg", "_detected_bright_boxes4.jpg"),
+            boxes=FINAL_BOXES
       )
     return output_path
