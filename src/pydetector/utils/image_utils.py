@@ -146,3 +146,52 @@ def preprocess_sticker_image(input_path: str) -> str:
 
     print(f"[INFO] Preprocessed image saved to {out_path}")
     return out_path
+
+
+def draw_boxes_and_save(
+    image_path: str,
+    output_path: str,
+    boxes: list[tuple[int, int, int, int]],
+    line_width: int = 4
+) -> str:
+    """
+    Draws red bounding boxes on an image and saves the result.
+
+    Args:
+        image_path: Path to the source image
+        output_path: Path (without extension) for the output image
+        boxes: List of bounding boxes [(x1, y1, x2, y2), ...]
+        line_width: Thickness of rectangle borders
+
+    Returns:
+        Path to the saved image
+    """
+    if not os.path.exists(image_path):
+        raise FileNotFoundError(f"Image not found: {image_path}")
+
+    img = Image.open(image_path).convert("RGB")
+    w, h = img.size
+
+    draw = ImageDraw.Draw(img)
+
+    for idx, (x1, y1, x2, y2) in enumerate(boxes):
+        # Clamp coordinates
+        x1_c = max(0, min(x1, w))
+        y1_c = max(0, min(y1, h))
+        x2_c = max(0, min(x2, w))
+        y2_c = max(0, min(y2, h))
+
+        if x2_c <= x1_c or y2_c <= y1_c:
+            print(f"[WARN] Skipping invalid box #{idx}: {(x1, y1, x2, y2)}")
+            continue
+
+        draw.rectangle(
+            [(x1_c, y1_c), (x2_c, y2_c)],
+            outline="red",
+            width=line_width
+        )
+
+    output_file = f"{output_path}"
+    img.save(output_file)
+
+    return output_file
