@@ -1,32 +1,33 @@
 import os
 import xml.etree.ElementTree as ET
-from typing import List, Tuple, Dict
+from dataclasses import dataclass
+from typing import List, Tuple, Optional
 
 import cv2
 import numpy as np
 
 
 Point = Tuple[int, int]
-BarcodeResult = Dict[str, object]
+@dataclass(frozen=True)
+class Barcode:
+    """
+    Represents a detected barcode polygon from XML.
+    """
+    points: List[Point]   # exactly 4 points (rotated rectangle)
+    angle: float          # angle in degrees
+
 
 
 # ------------------------------------------------------------
 # XML parsing
 # ------------------------------------------------------------
-
-def get_barcode_results(files_path: str, xml_file_name: str) -> List[BarcodeResult]:
+def get_barcode_results(files_path: str, xml_file_name: str) -> List[Barcode]:
     """
     Parses SICK camera XML and extracts barcode polygons,
     applying origin correction.
 
     Returns:
-    [
-        {
-            "points": [(x1,y1), (x2,y2), (x3,y3), (x4,y4)],
-            "angle": float
-        },
-        ...
-    ]
+        List[Barcode]
     """
 
     xml_path = os.path.join(files_path, xml_file_name)
@@ -48,7 +49,7 @@ def get_barcode_results(files_path: str, xml_file_name: str) -> List[BarcodeResu
     ox = int(origin_node.attrib.get("x", 0))
     oy = int(origin_node.attrib.get("y", 0))
 
-    results: List[BarcodeResult] = []
+    results: List[Barcode] = []
 
     # --- Iterate over barcodes ---
     for symbol in root.findall(".//symbol"):
@@ -77,22 +78,24 @@ def get_barcode_results(files_path: str, xml_file_name: str) -> List[BarcodeResu
         if len(points) != 4:
             continue
 
-        results.append({
-            "points": points,
-            "angle": angle
-        })
+        results.append(
+            Barcode(
+                points=points,
+                angle=angle
+            )
+        )
 
     return results
+
 
 
 # ------------------------------------------------------------
 # Drawing (MONO, black rectangles)
 # ------------------------------------------------------------
-
 def draw_rotated_barcodes_mono_black(
     image_path: str,
-    barcodes: List[BarcodeResult],
-    output_path: str | None = None
+    barcodes: List[Barcode],
+    output_path: Optional[str] = None
 ) -> str:
     """
     Draw rotated barcode rectangles as BLACK lines on a MONO image.
@@ -105,15 +108,12 @@ def draw_rotated_barcodes_mono_black(
     h, w = image.shape[:2]
 
     for barcode in barcodes:
-        points: List[Point] = barcode["points"]
-
-        if len(points) != 4:
+        if len(barcode.points) != 4:
             continue
 
-        # Optional safety clipping
         clipped_points = [
             (max(0, min(w - 1, x)), max(0, min(h - 1, y)))
-            for x, y in points
+            for x, y in barcode.points
         ]
 
         pts = np.array(clipped_points, dtype=np.int32).reshape((-1, 1, 2))
@@ -137,7 +137,6 @@ def draw_rotated_barcodes_mono_black(
 # ------------------------------------------------------------
 # Main processing
 # ------------------------------------------------------------
-
 def process_script(
     files_path: str,
     file_name: str,
@@ -156,7 +155,7 @@ def process_script(
 
     print(f"[INFO] Found {len(barcodes)} barcodes")
     for i, b in enumerate(barcodes):
-        print(f"  #{i}: angle={b['angle']} points={b['points']}")
+        print(f"  #{i}: angle={b.angle}, points={b.points}")
 
     image_path = os.path.join(files_path, image_file)
 
