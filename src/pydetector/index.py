@@ -1,4 +1,17 @@
+from pydetector.bl.script import process_script
 from pydetector.server.app import create_app
+
+path = "new-pictures/"
+files_names = ["a", "b", "c", "d"]
+for fn in files_names:
+    file_name = fn
+    files_path = path
+    print(f"Processing file: {file_name}")
+    process_script(
+        files_path=files_path,
+        file_name=file_name
+    )
+      
 
 print("Starting PyDetector...")
 def main():
