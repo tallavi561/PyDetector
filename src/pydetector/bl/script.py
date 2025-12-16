@@ -260,7 +260,7 @@ def process_image_with_barcodes(
     files_path: str,
     file_name: str,
     white_threshold: int = 90,
-    delta: int = 50
+    delta: int = 30
 ) -> List[StickerRegion]:
 
     image_path = os.path.join(files_path, file_name + ".jpg")
