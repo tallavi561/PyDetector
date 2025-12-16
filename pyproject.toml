@@ -7,7 +7,7 @@ packages = [
     { include = "pydetector", from = "src" }
 ]
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.11"
 flask = "^3.0.0"
 pillow = "^11.0.0"
 numpy = "^2.1.0"
@@ -15,6 +15,7 @@ onnxruntime = "^1.23.2"
 ultralytics = "^8.3.228"
 huggingface-hub = "^1.1.4"
 onnx = "^1.19.1"
+scikit-learn = "^1.8.0"
 
 [tool.poetry.scripts]
 start = "pydetector.index:main"
