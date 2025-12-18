@@ -5,7 +5,6 @@ from PIL import Image
 
 from pydetector.bl.detect import detector
 from pydetector.utils.image_utils import (
-    preprocess_sticker_image,
     save_base64_to_image,
     crop_image_to_output
 )
