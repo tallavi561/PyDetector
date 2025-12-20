@@ -188,43 +188,66 @@ def draw_rotated_barcodes_on_image(
 
 def get_pixels_inside_barcode(
     image_path: str,
-    barcode: Barcode
+    barcode: Barcode,
+    image: np.ndarray 
 ) -> List[int]:
-    """
-    Returns all pixels inside the barcode polygon.
-
-    Output format:
-        [ (pixel_value), ... ]
-
-    Assumptions:
-    - Image is MONO (grayscale)
-    - Barcode.points defines a polygon (at least 3 points)
-    """
-
-    # --- Load grayscale image ---
-    image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
-    if image is None:
-        raise ValueError(f"Failed to load image: {image_path}")
-
-    height, width = image.shape
-
-    # --- Create empty mask ---
-    mask = np.zeros((height, width), dtype=np.uint8)
-
-    # --- Prepare polygon ---
     polygon = np.array(barcode.points, dtype=np.int32)
+    
+    # מציאת הריבוע החוסם
+    x, y, w, h = cv2.boundingRect(polygon)
+    
+    # הגנה מפני חריגה מגבולות התמונה (חשוב מאוד!)
+    img_h, img_w = image.shape[:2]
+    x1, y1 = max(0, x), max(0, y)
+    x2, y2 = min(img_w, x + w), min(img_h, y + h)
+    
+    # חיתוך ה-ROI מהתמונה המקורית
+    roi = image[y1:y2, x1:x2]
+    
+    # יצירת המסיכה בדיוק בגודל של ה-ROI שחתכנו
+    mask_roi = np.zeros(roi.shape[:2], dtype=np.uint8)
+    
+    # הזזת נקודות הפוליגון שיתאימו ל-ROI החדש
+    # אנחנו מחסירים את x1 ו-y1 כדי שהפוליגון יהיה יחסי לפינה השמאלית של ה-ROI
+    shifted_polygon = polygon - [x1, y1]
+    
+    cv2.fillPoly(mask_roi, [shifted_polygon], 255)
+    
+    # כעת הגדלים חייבים להתאים
+    return roi[mask_roi == 255].tolist()
+    # """
+    # Returns all pixels inside the barcode polygon.
 
-    # --- Fill polygon on mask ---
-    cv2.fillPoly(mask, [polygon], 255)
+    # Output format:
+    #     [ (pixel_value), ... ]
 
-    # --- Extract pixels ---
-    pixels: List[int] = []
+    # Assumptions:
+    # - Image is MONO (grayscale)
+    # - Barcode.points defines a polygon (at least 3 points)
+    # """
 
-    ys, xs = np.where(mask == 255)
-    for x, y in zip(xs, ys):
-        pixels.append((int(image[y, x])))
+    # # --- Load grayscale image ---
 
-    return pixels
+
+    # height, width = image.shape
+
+    # # --- Create empty mask ---
+    # mask = np.zeros((height, width), dtype=np.uint8)
+
+    # # --- Prepare polygon ---
+    # polygon = np.array(barcode.points, dtype=np.int32)
+
+    # # --- Fill polygon on mask ---
+    # cv2.fillPoly(mask, [polygon], 255)
+
+    # # --- Extract pixels ---
+    # pixels: List[int] = []
+
+    # ys, xs = np.where(mask == 255)
+    # for x, y in zip(xs, ys):
+    #     pixels.append((int(image[y, x])))
+
+    # return pixels
 
 def save_brightness_distribution(
     pixel_values: List[int],

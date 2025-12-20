@@ -137,5 +137,5 @@ class OpenCVDetector:
             "message": "success"
         }
 
-detector = OpenCVDetector()
+detector =None #  OpenCVDetector()
         

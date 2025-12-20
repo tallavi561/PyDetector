@@ -44,6 +44,14 @@ def expand_barcode_bbox_by_position(barcode: Barcode,
 #     print(f"barcode: {barcode}")
     return copy_expanded_barcode, only_expantion_barcode
 
+def is_corners_bright(expanded_barcode: Barcode,
+                      image_path: str,
+                      rectangle_length: int,
+                      brightness_threshold:int,
+                      brightness_percentage:int):
+     pass
+     
+
 """
 The seconde return value, is the new barcode - if True, with the step, else- without
 """
@@ -51,6 +59,7 @@ def is_new_step_in_sticker(files_path: str,
       file_name: str,
       barcode: Barcode,
       stepPosition: StepPosition,
+      image: np.ndarray,
       expantion_pixels: int=120,
       barcode_index_debug: int=0,
       debug_index:int = 0,
@@ -65,27 +74,83 @@ def is_new_step_in_sticker(files_path: str,
 #     draw_rotated_barcodes_on_image(image_path,
 #                                    [expansion_only],
 #                                    output_path=os.path.join(files_path, f"{file_name}-br-{barcode_index_debug}{stepPosition}{debug_index}_expansion_only{picture_type}"))        
-    
-    pixels_values_in_current_area = get_pixels_inside_barcode(image_path, barcode)
+    image_h, image_w = image.shape
+    for expansion_only_points in expansion_only.points:
+         if expansion_only_points[0] < 0 or expansion_only_points[0] > image_w:
+              return (False , barcode)
+         if expansion_only_points[1] < 0 or expansion_only_points[1] > image_h:
+              return (False , barcode)
+    pixels_values_in_current_area = get_pixels_inside_barcode(image_path, barcode, image)
     current_threshold = find_bimodal_threshold(pixels_values_in_current_area)
-    print(f"current_threshold: {current_threshold}")
+#     print(f"current_threshold: {current_threshold}")
     pixels_values_in_currnet_area_grather_than_T = [pixel for pixel in pixels_values_in_current_area if pixel >= current_threshold]
     brightness_in_current_area = len(pixels_values_in_currnet_area_grather_than_T)/len(pixels_values_in_current_area)
-    print(f"pixels_values_in_currnet_area_grather_than_T: {brightness_in_current_area}")
+#     print(f"pixels_values_in_currnet_area_grather_than_T: {brightness_in_current_area}")
     # save_brightness_distribution(pixels_values_in_current_area, files_path + file_name+"-br-"+str(barcode_index_debug)+str(stepPosition)+str(debug_index) + f"_histogram_current.jpg", step_size=5, threshold=current_threshold)
-    pixels_values_in_new_area = get_pixels_inside_barcode(image_path, expansion_only)
-    new_area_threshold = find_bimodal_threshold(pixels_values_in_new_area)
-    print(f"new_area_threshold: {new_area_threshold}")
+    print("<><><><>")
+    print(f"{barcode=}")
+    print(f"{expansion_only=}")
+    pixels_values_in_new_area = get_pixels_inside_barcode(image_path, expansion_only, image)
+    # new_area_threshold = find_bimodal_threshold(pixels_values_in_new_area)
+#     print(f"new_area_threshold: {new_area_threshold}")
     # save_brightness_distribution(pixels_values_in_new_area, files_path + file_name+"-br-"+str(barcode_index_debug)+str(stepPosition)+str(debug_index) + f"_histogram_new.jpg", step_size=5, threshold=current_threshold)
     pixels_values_in_new_area_grather_than_T = [pixel for pixel in pixels_values_in_new_area if pixel >= current_threshold]
     brightness_in_new_area = len(pixels_values_in_new_area_grather_than_T)/len(pixels_values_in_new_area)
-    print(f"pixels_values_in_new_area_grather_than_T: {brightness_in_new_area}")
+#     print(f"pixels_values_in_new_area_grather_than_T: {brightness_in_new_area}")
     if  brightness_in_new_area >= max(brightness_in_current_area- 0.2, 0.55):
         return (True , expanded_barcode)
     else:
         return (False , barcode)
 
+def expentions_for_loops(
+          files_path: str,
+          file_name: str,
+          image: np.ndarray,
+          barcodes:List[Barcode],
+          steps_directions: list[StepPosition],
+          debug_indexes: tuple[int, int]
+      ):
+    # stepPosition remover
+    directions_not_in_sticker: dict[StepPosition, int] = {sp: 0 for sp in steps_directions}
 
+    for barcode_index in range(len(barcodes)):
+      steps_directions_copy = [sp for sp in steps_directions]
+      for index in range(debug_indexes[0], debug_indexes[1]):
+            print(f"debug_indexes: {index} from {debug_indexes[0]} to {debug_indexes[1]}")
+            for step_direction in steps_directions_copy:
+                  print(f"step_direction: {step_direction}")
+                  expantion_pixels = 120
+                  print(f"expantion_pixels: {expantion_pixels}")
+                  step_in_sticker, barcode =  is_new_step_in_sticker(
+                        files_path=files_path,
+                        file_name=file_name,
+                        image=image,
+                        barcode=barcodes[barcode_index],
+                        barcode_index_debug=barcode_index,
+                        stepPosition= step_direction,
+                        expantion_pixels=expantion_pixels,
+                        debug_index=index)
+                  if not step_in_sticker:
+
+                        expantion_pixels = 60
+                        print(f" if not step_in_sticker -> expantion_pixels: {expantion_pixels}")
+                        step_in_sticker, barcode =  is_new_step_in_sticker(
+                        files_path=files_path,
+                        file_name=file_name,
+                        image=image,
+                        barcode=barcodes[barcode_index],
+                        barcode_index_debug=barcode_index,
+                        stepPosition= step_direction,
+                        expantion_pixels=expantion_pixels,
+                        debug_index=index)
+                  if step_in_sticker:
+                        directions_not_in_sticker[step_direction] = 0
+                        barcodes[barcode_index] = barcode
+                  else:
+                       directions_not_in_sticker[step_direction] +=1
+                       if directions_not_in_sticker[step_direction] >= 10:
+                            steps_directions_copy.remove(step_direction)
+                            print("not step_in_sticker, removed")
 # ============================================================
 # Main pipeline
 # ============================================================
@@ -101,30 +166,27 @@ def process_image(files_path: str,
     draw_rotated_barcodes_on_image(image_path,
                                    barcodes,
                                    output_path=os.path.join(files_path, f"{file_name}_barcodes{picture_type}"))
-    for barcode_index in range(len(barcodes)):
-      for step_direction in [StepPosition.BACK, StepPosition.LEFT, StepPosition.FORWARD, StepPosition.RIGHT]:
-            for index in range(30):
-                  step_in_sticker, barcode =  is_new_step_in_sticker(files_path=files_path,
-                        file_name=file_name,
-                        barcode=barcodes[barcode_index],
-                        barcode_index_debug=barcode_index,
-                        stepPosition= step_direction,
-                        debug_index=index)
-                  if not step_in_sticker:
-                        break
-                  barcodes[barcode_index] = barcode
-      print(f"Frist loop was finished")
-      for step_direction in [StepPosition.BACK, StepPosition.LEFT, StepPosition.FORWARD, StepPosition.RIGHT]:
-            for index in range(40, 70):
-                  step_in_sticker, barcode =  is_new_step_in_sticker(files_path=files_path,
-                        file_name=file_name,
-                        barcode=barcodes[barcode_index],
-                        barcode_index_debug=barcode_index,
-                        stepPosition= step_direction,
-                        debug_index=index)
-                  if not step_in_sticker:
-                        break
-                  barcodes[barcode_index] = barcode
+    steps_directions = [StepPosition.LEFT, StepPosition.FORWARD, StepPosition.RIGHT, StepPosition.BACK, ]
+    image: np.ndarray = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+    if image is None:
+        raise ValueError(f"Failed to load image: {image_path}")
+    expentions_for_loops(
+         files_path=files_path,
+         file_name=file_name,
+         barcodes=barcodes,
+         image=image,
+         steps_directions=steps_directions,
+        debug_indexes=(0, 4)
+    )
+    print(f"Frist loop was finished")
+    expentions_for_loops(
+         files_path=files_path,
+         file_name=file_name,
+         barcodes=barcodes,
+        image=image,
+         steps_directions=steps_directions,
+        debug_indexes=(10, 14)
+    )
     draw_rotated_barcodes_on_image(files_path + file_name + picture_type,
       barcodes=barcodes,
       output_path=files_path + "FINAL" +file_name + picture_type
