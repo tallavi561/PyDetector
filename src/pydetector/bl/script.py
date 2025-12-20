@@ -10,11 +10,11 @@ from pydetector.utils.xml_utils import load_barcodes
 positions: list[StepPosition] = [StepPosition.FORWARD, StepPosition.BACK, StepPosition.RIGHT, StepPosition.LEFT]
 def deep_copy_barcode(barcode : Barcode)->Barcode:
      copy_points: List[Point] = []
-     for barcode_points in barcode.points:
+     for barcode_points in barcode.corners_points:
           copy_point: Point = (barcode_points[0], barcode_points[1])
           copy_points.append(copy_point)
      
-     copy_barcode:Barcode = Barcode(points=copy_points, angle=barcode.angle)
+     copy_barcode:Barcode = Barcode(corners_points=copy_points, angle=barcode.angle)
      return copy_barcode
 
 
@@ -34,13 +34,13 @@ def expand_barcode_bbox_by_position(barcode: Barcode,
     copy_expanded_barcode = deep_copy_barcode(barcode)
     expantion_vectors, points_directions = get_changes_vectors_by_vector_and_position(barcode, stepPosition, expantion_pixels)
 #     print(f"barcode: {barcode} go stepPosition: {stepPosition}")
-    for index in range(len(barcode.points)):
-         copy_expanded_barcode.points[index] = (int(barcode.points[index][0] + expantion_vectors[index].dx),
-                  int(barcode.points[index][1] + expantion_vectors[index].dy))
+    for index in range(len(barcode.corners_points)):
+         copy_expanded_barcode.corners_points[index] = (int(barcode.corners_points[index][0] + expantion_vectors[index].dx),
+                  int(barcode.corners_points[index][1] + expantion_vectors[index].dy))
     
     only_expantion_barcode = deep_copy_barcode(copy_expanded_barcode)
     for points_direction in points_directions:
-        only_expantion_barcode.points[points_direction.fromPointIndex] = barcode.points[points_direction.toPointIndex]
+        only_expantion_barcode.corners_points[points_direction.fromPointIndex] = barcode.corners_points[points_direction.toPointIndex]
 #     print(f"barcode: {barcode}")
     return copy_expanded_barcode, only_expantion_barcode
 
@@ -75,7 +75,7 @@ def is_new_step_in_sticker(files_path: str,
 #                                    [expansion_only],
 #                                    output_path=os.path.join(files_path, f"{file_name}-br-{barcode_index_debug}{stepPosition}{debug_index}_expansion_only{picture_type}"))        
     image_h, image_w = image.shape
-    for expansion_only_points in expansion_only.points:
+    for expansion_only_points in expansion_only.corners_points:
          if expansion_only_points[0] < 0 or expansion_only_points[0] > image_w:
               return (False , barcode)
          if expansion_only_points[1] < 0 or expansion_only_points[1] > image_h:

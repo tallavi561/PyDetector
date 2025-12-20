@@ -30,6 +30,6 @@ def load_barcodes(xml_path: str) -> List[Barcode]:
             pts.append((x, y))
 
         if len(pts) == 4:
-            barcodes.append(Barcode(points=pts, angle=angle))
+            barcodes.append(Barcode(corners_points=pts, angle=angle))
 
     return barcodes

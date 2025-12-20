@@ -158,7 +158,7 @@ def draw_rotated_barcodes_on_image(
     print(f"[INFO] Found {len(barcodes)} barcodes")
     img = cv2.imread(image_path)
     for i, bc in enumerate(barcodes):
-        pts = np.array(bc.points, dtype=np.float32)
+        pts = np.array(bc.corners_points, dtype=np.float32)
 
         # IMPORTANT: minAreaRect expects contour shape (N,1,2)
         contour = pts.reshape(-1, 1, 2)
@@ -191,7 +191,7 @@ def get_pixels_inside_barcode(
     barcode: Barcode,
     image: np.ndarray 
 ) -> List[int]:
-    polygon = np.array(barcode.points, dtype=np.int32)
+    polygon = np.array(barcode.corners_points, dtype=np.int32)
     
     # מציאת הריבוע החוסם
     x, y, w, h = cv2.boundingRect(polygon)

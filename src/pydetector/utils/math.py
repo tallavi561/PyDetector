@@ -37,8 +37,8 @@ def get_changes_vectors_by_vector_and_position(barcode: Barcode, stepPosition: S
 
       match stepPosition:
             case StepPosition.FORWARD:
-                  source_point = barcode.points[0]
-                  dest_point = barcode.points[1]
+                  source_point = barcode.corners_points[0]
+                  dest_point = barcode.corners_points[1]
                   vector = calculate_vector_by_points_and_length(source_point, dest_point, vector_length)
                   vector_for_barcode_points[1] = vector
                   vector_for_barcode_points[2] = vector
@@ -47,8 +47,8 @@ def get_changes_vectors_by_vector_and_position(barcode: Barcode, stepPosition: S
                   points_direction[1].fromPointIndex = 3
                   points_direction[1].toPointIndex = 2
             case StepPosition.BACK:
-                  source_point = barcode.points[1]
-                  dest_point = barcode.points[0]
+                  source_point = barcode.corners_points[1]
+                  dest_point = barcode.corners_points[0]
                   vector = calculate_vector_by_points_and_length(source_point, dest_point, vector_length)
                   vector_for_barcode_points[0] = vector
                   vector_for_barcode_points[3] = vector
@@ -57,8 +57,8 @@ def get_changes_vectors_by_vector_and_position(barcode: Barcode, stepPosition: S
                   points_direction[1].fromPointIndex = 2
                   points_direction[1].toPointIndex = 3
             case StepPosition.RIGHT:
-                  source_point = barcode.points[1]
-                  dest_point = barcode.points[2]
+                  source_point = barcode.corners_points[1]
+                  dest_point = barcode.corners_points[2]
                   vector = calculate_vector_by_points_and_length(source_point, dest_point, vector_length)
                   vector_for_barcode_points[2] = vector
                   vector_for_barcode_points[3] = vector
@@ -67,8 +67,8 @@ def get_changes_vectors_by_vector_and_position(barcode: Barcode, stepPosition: S
                   points_direction[1].fromPointIndex = 0
                   points_direction[1].toPointIndex = 3
             case StepPosition.LEFT:
-                  source_point = barcode.points[2]
-                  dest_point = barcode.points[1]
+                  source_point = barcode.corners_points[2]
+                  dest_point = barcode.corners_points[1]
                   vector = calculate_vector_by_points_and_length(source_point, dest_point, vector_length)
                   vector_for_barcode_points[0] = vector
                   vector_for_barcode_points[1] = vector

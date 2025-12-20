@@ -17,7 +17,7 @@ SOURCE_TO_DEST_POINTS = tuple[Point, Point]
 # ============================================================
 @dataclass(frozen=True)
 class Barcode:
-    points: List[Point]
+    corners_points: List[Point]
     angle: float  # degrees
 
 
